@@ -1,7 +1,6 @@
 import os
 from time import sleep, time
 import requests
-from sqlalchemy import true
 from utils.signzy import get_signzy_default_header, get_signzy_post_url, get_signzy_identity_body
 from dotenv import load_dotenv
 
@@ -32,7 +31,7 @@ def get_signzy_identity_object(verification_type: str, signzy_uuid: str, images:
 
     """Gets the identity object from signzy"""
 
-    url = get_signzy_post_url("identities", patreon_id=true)
+    url = get_signzy_post_url("identities", patreon_id=True)
     headers = get_signzy_default_header()
     request_body = get_signzy_identity_body(verification_type, signzy_uuid, images=images)
     identity_response = requests.post(url, headers=headers, data=request_body)
