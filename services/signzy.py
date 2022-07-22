@@ -1,7 +1,12 @@
 import os
 from time import sleep, time
+from sqlalchemy.exc import SQLAlchemyError
 import requests
 from utils.signzy import get_signzy_default_header, get_signzy_post_url, get_signzy_identity_body
+from shared.models import db
+from models.signzy import IdentityModel
+
+SLQALCHEMY_PRIMARY_KEY_CONFLICT_ERROR_CODE = "gkpj"
 
 
 def signzy_login():
@@ -12,7 +17,7 @@ def signzy_login():
     while True:
         now = time()
         if time_till_logout > now and time_till_logout > 0:
-            sleep(1000)
+            # sleep(1000)
             continue
         signzy_login_credentials = {
             "username": os.environ["SIGNZY_USERNAME"],
@@ -27,16 +32,31 @@ def signzy_login():
         sleep(1000)
 
 
-def get_signzy_identity_object(verification_type: str, signzy_uuid: str, images: list = []):
+def get_signzy_identity_object(verification_type: str, images: list = []):
 
     """Gets the identity object from signzy"""
 
     url = get_signzy_post_url("identities", patreon_id=True)
     headers = get_signzy_default_header()
-    request_body = get_signzy_identity_body(verification_type, signzy_uuid, images=images)
+    request_body = get_signzy_identity_body(verification_type, images=images)
     identity_response = requests.post(url, headers=headers, data=request_body)
     identity_object = identity_response.json()
     return identity_object
+
+
+def add_identity_to_database(identity_object: dict):
+
+    identity_model = IdentityModel(
+        identity_access_token=identity_object["accessToken"], identity_id=identity_object["id"]
+    )
+    try:
+        db.session.add(identity_model)
+        db.session.commit()
+    except SQLAlchemyError as error:
+        if error.code == SLQALCHEMY_PRIMARY_KEY_CONFLICT_ERROR_CODE:
+            return 400
+        return 500
+    return 200
 
 
 # def get_verification_object():

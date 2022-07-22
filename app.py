@@ -1,9 +1,11 @@
 import os
-from flask import Flask, request
+from flask import Flask, Response, request
 from dotenv import load_dotenv
-from services.signzy import get_signzy_identity_object, signzy_login
+from services.signzy import add_identity_to_database, get_signzy_identity_object, signzy_login
 import threading
 from shared.models import db
+from models.signzy import IdentityModel
+from flask_migrate import Migrate
 
 load_dotenv()
 
@@ -14,7 +16,7 @@ app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = f"postgresql://{os.environ['POSTGRES_USERNAME']}:{os.environ['POSTGRES_PASSWORD']}@0.0.0.0:5432/{os.environ['POSTGRES_DATABASE_NAME']}"
 db.init_app(app)
-
+Migrate(app, db)
 with app.app_context():
     db.create_all()
 
@@ -39,8 +41,10 @@ def verification():
     image_array = [
         "https://cdn.discordapp.com/attachments/840656221450010705/999562536854761482/IMG-20220701-WA0002.jpg"
     ]
-    identity_object = get_signzy_identity_object(identity_type, "AAAA", images=image_array)
-    return identity_object
+    identity_object = get_signzy_identity_object(identity_type, images=image_array)
+    # 'add_identity_to_database' function returns status codes
+    add_to_db_status_code = add_identity_to_database(identity_object)
+    return Response(f"response {add_to_db_status_code}", 400)
 
 
 if __name__ == "__main__":

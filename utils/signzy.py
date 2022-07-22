@@ -35,14 +35,14 @@ def get_signzy_extraction_request_body(service: str, task: str, item_id: str, ac
     return json.parse(extraction_body)
 
 
-def get_signzy_identity_body(verification_type: str, signzy_uuid: str, images: list = []):
+def get_signzy_identity_body(verification_type: str, images: list = []):
 
     """Gets the request body for identity for signzy"""
 
     identity_body = {
         "type": verification_type,
         "email": os.environ["SIGNZY_EMAIL"],
-        "callbackUrl": os.environ["SIGNZY_CALLBACK_URL"] + signzy_uuid,
+        "callbackUrl": os.environ["SIGNZY_CALLBACK_URL"],
         "images": images,
     }
 
