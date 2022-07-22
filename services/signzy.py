@@ -2,7 +2,6 @@ import os
 from time import sleep, time
 import requests
 from utils.signzy import get_signzy_default_header, get_signzy_post_url, get_signzy_identity_body
-from dotenv import load_dotenv
 
 
 def signzy_login():

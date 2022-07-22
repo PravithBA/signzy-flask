@@ -3,6 +3,7 @@ from flask import Flask, request
 from dotenv import load_dotenv
 from services.signzy import get_signzy_identity_object, signzy_login
 import threading
+from flask_sqlalchemy import SQLAlchemy
 
 load_dotenv()
 
