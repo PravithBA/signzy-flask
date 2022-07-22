@@ -13,7 +13,8 @@ def signzy_login():
     while True:
         now = time()
         if time_till_logout > now and time_till_logout > 0:
-            return
+            sleep(1000)
+            continue
         signzy_login_credentials = {
             "username": os.environ["SIGNZY_USERNAME"],
             "password": os.environ["SIGNZY_PASSWORD"],
