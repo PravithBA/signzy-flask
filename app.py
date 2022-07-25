@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from services.signzy import add_identity_to_database, get_signzy_identity_object, signzy_login
 import threading
 from shared.models import db
-from models.signzy import IdentityModel
 from flask_migrate import Migrate
 
 load_dotenv()
@@ -30,21 +29,19 @@ def main_route():
     return "Welcome"
 
 
-@app.get("/signzy/verify")
+@app.post("/signzy/verify")
 def verification():
     request_query_paramerters = request.args
-    request_body = request.data
+    request_body = request.get_json()
     try:
         identity_type = request_query_paramerters["identity_type"]
     except:
         return {"msg": "Wrong url parameters"}, 400
-    image_array = [
-        "https://cdn.discordapp.com/attachments/840656221450010705/999562536854761482/IMG-20220701-WA0002.jpg"
-    ]
+    image_array = request_body["imageArr"]
     identity_object = get_signzy_identity_object(identity_type, images=image_array)
     # 'add_identity_to_database' function returns status codes
     add_to_db_status_code = add_identity_to_database(identity_object)
-    return Response(f"response {add_to_db_status_code}", 400)
+    return Response(f"response {add_to_db_status_code}", add_to_db_status_code)
 
 
 if __name__ == "__main__":
