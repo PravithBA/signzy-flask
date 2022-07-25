@@ -1,16 +1,10 @@
-FROM ubuntu
-
-RUN apt update
-RUN apt install python3-pip -y
-RUN apt-get install -y python3-psycopg2
-RUN pip install Flask
-RUN pip install requests
-RUN pip install python-dotenv
-RUN pip install flask_sqlalchemy
-RUN pip install flask_migrate
-RUN pip install psycopg2-binary 
+FROM python:3.8-slim-buster
 
 WORKDIR /app
+
+RUN pip install --upgrade pip
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY . .
 

@@ -20,19 +20,19 @@ def get_signzy_post_url(url_patameter: str, patreon_id: bool = False):
     return f"https://preproduction.signzy.tech/api/v2/{url_patameter}"
 
 
-def get_signzy_extraction_request_body(service: str, task: str, item_id: str, access_token: str, essentials: dict = {}):
+def get_signzy_extraction_request_body(identity_id: str, access_token: str, essentials: dict = {}):
 
     """Gets the request body for extraction for signzy"""
 
     extraction_body = {
-        "service": service,
-        "itemId": item_id,
-        "task": task,
+        "service": "Identity",
+        "itemId": identity_id,
+        "task": "autoRecognition",
         "accessToken": access_token,
         "essentials": essentials,
     }
 
-    return json.parse(extraction_body)
+    return json.dumps(extraction_body)
 
 
 def get_signzy_identity_body(verification_type: str, images: list = []):

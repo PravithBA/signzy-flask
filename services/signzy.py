@@ -1,8 +1,14 @@
+from email import header
 import os
 from time import sleep, time
 from sqlalchemy.exc import SQLAlchemyError
 import requests
-from utils.signzy import get_signzy_default_header, get_signzy_post_url, get_signzy_identity_body
+from utils.signzy import (
+    get_signzy_default_header,
+    get_signzy_extraction_request_body,
+    get_signzy_post_url,
+    get_signzy_identity_body,
+)
 from shared.models import db
 from models.signzy import IdentityModel
 
@@ -46,6 +52,8 @@ def get_signzy_identity_object(verification_type: str, images: list = []):
 
 def add_identity_to_database(identity_object: dict):
 
+    """Adds the identity object to the database"""
+
     identity_model = IdentityModel(
         identity_access_token=identity_object["accessToken"], identity_id=identity_object["id"]
     )
@@ -57,6 +65,17 @@ def add_identity_to_database(identity_object: dict):
             return 400
         return 500
     return 200
+
+
+def send_data_to_callback_url(identity_object):
+
+    """Sends a post request to the verify url to recive the response on the callback url"""
+
+    url = get_signzy_post_url("snoops")
+    request_body = get_signzy_extraction_request_body(identity_object["id"], identity_object["accessToken"])
+    headers = get_signzy_default_header()
+    response = requests.post(url, data=request_body, headers=headers)
+    return response
 
 
 # def get_verification_object():

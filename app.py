@@ -1,7 +1,12 @@
 import os
 from flask import Flask, Response, request
 from dotenv import load_dotenv
-from services.signzy import add_identity_to_database, get_signzy_identity_object, signzy_login
+from services.signzy import (
+    add_identity_to_database,
+    get_signzy_identity_object,
+    send_data_to_callback_url,
+    signzy_login,
+)
 import threading
 from shared.models import db
 from flask_migrate import Migrate
@@ -23,9 +28,17 @@ with app.app_context():
 @app.get("/")
 def main_route():
     try:
-        print(os.environ["TIME_TILL_LOGOUT"])
+        print(
+            "\n------------------------------------------------------------------\n",
+            os.environ["TIME_TILL_LOGOUT"],
+            "\n------------------------------------------------------------------\n",
+        )
     except:
-        print("No env variable")
+        print(
+            "\n------------------------------------------------------------------\n",
+            "No env variable for time till logout",
+            "\n------------------------------------------------------------------\n",
+        )
     return "Welcome"
 
 
@@ -36,13 +49,21 @@ def verification():
     try:
         identity_type = request_query_paramerters["identity_type"]
     except:
-        return {"msg": "Wrong url parameters"}, 400
+        return Response({"msg": "Wrong url parameters"}, 400)
     image_array = request_body["imageArr"]
     identity_object = get_signzy_identity_object(identity_type, images=image_array)
     # 'add_identity_to_database' function returns status codes
     add_to_db_status_code = add_identity_to_database(identity_object)
+    send_to_callback_response = send_data_to_callback_url(identity_object)
+    print(send_to_callback_response.json())
     return Response(f"response {add_to_db_status_code}", add_to_db_status_code)
 
 
+@app.post("/signzy/callback")
+def call_back():
+
+    return
+
+
 if __name__ == "__main__":
-    app.run(debug="1", host="0.0.0.0", port=7500)
+    app.run(host="0.0.0.0", port=7500)
